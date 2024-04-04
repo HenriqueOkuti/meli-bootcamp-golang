@@ -32,7 +32,9 @@ func solveEVERYTHING(fileNames []string) {
 	for _, fileName := range fileNames {
 		var fileData = readFile(fileName)
 		var clientData = convertFileDataToClientData(fileData)
-		fmt.Println("Reading user data: ", clientData)
+		if clientData.Name != "" {
+			fmt.Println("Reading user data: ", clientData)
+		}
 	}
 
 }
@@ -71,11 +73,11 @@ func convertFileDataToClientData(file *os.File) Client {
 
 	fileBytes, err := io.ReadAll(file)
 	if err != nil {
-		panic("error: unable to read file")
+		panic(err)
 	}
 
 	fileBytesString := string(fileBytes)
-	fileData := strings.Split(fileBytesString, "[^;]+")
+	fileData := strings.Split(fileBytesString, ";")
 
 	var newClientId uint8 = uint8(rand.Uint64()) // Requirement from Task 1
 
