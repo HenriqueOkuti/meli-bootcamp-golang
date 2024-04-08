@@ -8,11 +8,20 @@ import (
 	gin "github.com/gin-gonic/gin"
 )
 
+/*
+	Description:
+
+TransactionsResponse represents a response object that contains a list of transactions.
+*/
 type TransactionsResponse struct {
 	Transactions []Transaction `json:"transactions"`
 }
 
-// Transaction represents a transaction object
+/*
+	Description:
+
+Transaction represents a transaction object directly from the JSON file.
+*/
 type Transaction struct {
 	ID              int     `json:"id"`
 	TransactionCode string  `json:"transactionCode"`
@@ -23,6 +32,11 @@ type Transaction struct {
 	Date            string  `json:"date"`
 }
 
+/*
+	Description:
+
+This is the main function that starts the application and defines the routes.
+*/
 func main() {
 	r := gin.Default()
 	r.GET("/", func(c *gin.Context) {
@@ -36,6 +50,11 @@ func main() {
 	r.Run()
 }
 
+/*
+	Description:
+
+getAllTransactions is a handler function that reads the transactions.json file and returns all transactions.
+*/
 func getAllTransactions(c *gin.Context) {
 	file, err := os.Open("transactions.json")
 	if err != nil {
