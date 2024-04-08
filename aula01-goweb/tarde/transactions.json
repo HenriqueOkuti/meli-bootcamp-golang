@@ -1,0 +1,76 @@
+{
+  "transactions": [
+    {
+      "ID": 1,
+      "TransactionCode": "dfb1b2b1-3f5b-4f0f-8b1f-3e1f2f1f2f1f",
+      "Currency": "USD",
+      "Amount": 100.00,
+      "Vendor": "Mercado Libre",
+      "Receptor": "John Doe",
+      "Date": "2020-01-01"
+    },
+    {
+      "ID": 2,
+      "TransactionCode": "dfb1b2b1-3f5b-4f0f-8b1f-3e1f2f1f2f2f",
+      "Currency": "BRL",
+      "Amount": 10000.00,
+      "Vendor": "Mercado Libre",
+      "Receptor": "John Doe",
+      "Date": "2020-01-01"
+    },
+    {
+      "ID": 3,
+      "TransactionCode": "dfb1b2b1-3f5b-4f0f-8b1f-3e1f2f1f2f3f",
+      "Currency": "USD",
+      "Amount": 10.00,
+      "Vendor": "Mercado Libre",
+      "Receptor": "John Doe",
+      "Date": "2020-01-02"
+    },
+    {
+      "ID": 4,
+      "TransactionCode": "dfb1b2b1-3f5b-4f0f-8b1f-3e1f2f1f2f4f",
+      "Currency": "BRL",
+      "Amount": 1000.00,
+      "Vendor": "Mercado Libre",
+      "Receptor": "John Doe",
+      "Date": "2020-01-02"
+    },
+    {
+      "ID": 5,
+      "TransactionCode": "dfb1b2b1-3f5b-4f0f-8b1f-3e1f2f1f2f5f",
+      "Currency": "USD",
+      "Amount": 1.00,
+      "Vendor": "Mercado Libre",
+      "Receptor": "John Doe",
+      "Date": "2020-01-03"
+    },
+    {
+      "ID": 6,
+      "TransactionCode": "dfb1b2b1-3f5b-4f0f-8b1f-3e1f2f1f2f6f",
+      "Currency": "BRL",
+      "Amount": 100.00,
+      "Vendor": "Mercado Libre",
+      "Receptor": "John Doe",
+      "Date": "2020-01-03"
+    },
+    {
+      "ID": 7,
+      "TransactionCode": "dfb1b2b1-3f5b-4f0f-8b1f-3e1f2f1f2f7f",
+      "Currency": "USD",
+      "Amount": 0.10,
+      "Vendor": "Mercado Libre",
+      "Receptor": "John Doe",
+      "Date": "2020-01-04"
+    },
+    {
+      "ID": 8,
+      "TransactionCode": "dfb1b2b1-3f5b-4f0f-8b1f-3e1f2f1f2f1f",
+      "Currency": "BRL",
+      "Amount": 10.00,
+      "Vendor": "Mercado Libre",
+      "Receptor": "John Doe",
+      "Date": "2020-01-04"
+    }
+  ]
+}
