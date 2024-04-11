@@ -5,6 +5,7 @@ import (
 	"errors"
 	e "goweb02tarde/internals/repositories/entities"
 	"os"
+	"sort"
 )
 
 type Database struct {
@@ -14,9 +15,10 @@ type Database struct {
 type ITransactionsRepository interface {
 	GetAllTransactions() []e.Transaction
 	GetOneTransaction(id int) (e.Transaction, error)
-	InsertTransaction(transaction e.TransactionDTO) e.Transaction
+	InsertTransaction(transaction e.TransactionDTO, transactionId int) e.Transaction
 	UpdateTransaction(id int, transaction e.TransactionDTO) (e.Transaction, error)
 	DeleteTransaction(id int) (e.Transaction, error)
+	FindLastTransaction() (e.Transaction, error)
 }
 
 func NewTransactionsRepository() (ITransactionsRepository, error) {
@@ -71,9 +73,9 @@ func (db *Database) GetOneTransaction(transactionId int) (e.Transaction, error) 
 	return e.Transaction{}, errors.New("transaction not found")
 }
 
-func (db *Database) InsertTransaction(newTransaction e.TransactionDTO) e.Transaction {
+func (db *Database) InsertTransaction(newTransaction e.TransactionDTO, transactionId int) e.Transaction {
 	validatedTransaction := e.Transaction{
-		ID:              len(db.Transactions) + 1,
+		ID:              transactionId,
 		TransactionCode: newTransaction.TransactionCode,
 		Currency:        newTransaction.Currency,
 		Amount:          newTransaction.Amount,
@@ -123,4 +125,17 @@ func (db *Database) DeleteTransaction(transactionId int) (e.Transaction, error) 
 		}
 	}
 	return e.Transaction{}, errors.New("transaction not found")
+}
+
+func (db *Database) FindLastTransaction() (e.Transaction, error) {
+	if len(db.Transactions) == 0 {
+		return e.Transaction{}, errors.New("no transactions found")
+	}
+
+	transactions := append([]e.Transaction(nil), db.Transactions...)
+	sort.Slice(transactions, func(i, j int) bool {
+		return transactions[i].ID < transactions[j].ID
+	})
+
+	return transactions[len(transactions)-1], nil
 }

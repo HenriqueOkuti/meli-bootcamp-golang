@@ -1,0 +1,14 @@
+host: localhost:8080
+info:
+  contact:
+    name: Henrique Okuti
+    url: https://github.com/hokuti_meli/bootcamp-henriqueokuti
+  description: This is a simple API to manage transactions
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: https://developers.mercadolibre.com.ar/es_ar/terminos-y-condiciones
+  title: Transactions API
+  version: "1.0"
+paths: {}
+swagger: "2.0"

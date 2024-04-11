@@ -3,6 +3,7 @@ package repository
 import (
 	"errors"
 	e "goweb02tarde/internals/repositories/entities"
+	"sort"
 )
 
 var mockDatabase = Database{
@@ -30,6 +31,7 @@ type Database struct {
 type ITransactionsRepository interface {
 	GetAllTransactions() []e.Transaction
 	GetOneTransaction(id int) (e.Transaction, error)
+	FindLastTransaction() (e.Transaction, error)
 	InsertTransaction(transaction e.TransactionDTO) e.Transaction
 	UpdateTransaction(id int, transaction e.TransactionDTO) (e.Transaction, error)
 	DeleteTransaction(id int) (e.Transaction, error)
@@ -46,6 +48,21 @@ func (db *Database) GetOneTransaction(transactionId int) (e.Transaction, error) 
 		}
 	}
 	return e.Transaction{}, errors.New("transaction not found")
+}
+
+func (db *Database) FindLastTransaction() (e.Transaction, error) {
+	// check if the Transactions is empty
+	if len(db.Transactions) == 0 {
+		return e.Transaction{}, errors.New("no transactions found")
+	}
+
+	// create a copy of transactions slice and sort it by id
+	transactions := append([]e.Transaction(nil), db.Transactions...)
+	sort.Slice(transactions, func(i, j int) bool {
+		return transactions[i].ID < transactions[j].ID
+	})
+
+	return transactions[len(transactions)-1], nil
 }
 
 func (db *Database) InsertTransaction(newTransaction e.TransactionDTO) e.Transaction {

@@ -41,7 +41,10 @@ func (s *Service) GetOneTransaction(id int) (e.Transaction, error) {
 }
 
 func (s *Service) InsertTransaction(transaction e.TransactionDTO) e.Transaction {
-	return s.transactionsRepository.InsertTransaction(transaction)
+	lastTransaction, _ := s.transactionsRepository.FindLastTransaction()
+	lastTransactionId := lastTransaction.ID + 1
+
+	return s.transactionsRepository.InsertTransaction(transaction, lastTransactionId)
 }
 
 func (s *Service) UpdateTransaction(id int, transaction e.TransactionDTO) (e.Transaction, error) {
