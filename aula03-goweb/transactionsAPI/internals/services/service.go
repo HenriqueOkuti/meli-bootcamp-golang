@@ -1,9 +1,12 @@
 package service
 
 import (
-	tr "goweb02tarde/internals/repositories"
 	e "goweb02tarde/internals/repositories/entities"
+	tr "goweb02tarde/internals/repositories/json-repository"
+	"log"
 )
+
+// tr "goweb02tarde/internals/repositories/memory-repository"
 
 type ITransactionsService interface {
 	GetAllTransactions() []e.Transaction
@@ -19,8 +22,13 @@ type Service struct {
 }
 
 func NewTransactionsService() ITransactionsService {
+	repository, err := tr.NewTransactionsRepository()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	return &Service{
-		transactionsRepository: tr.NewTransactionsRepository(),
+		transactionsRepository: repository,
 	}
 }
 

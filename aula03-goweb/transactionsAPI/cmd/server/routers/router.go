@@ -2,6 +2,9 @@ package router
 
 import (
 	"net/http"
+	"os"
+
+	tv "goweb02tarde/cmd/server/middlewares"
 
 	gin "github.com/gin-gonic/gin"
 )
@@ -32,4 +35,23 @@ func (r Routes) Group(relativePath string) *gin.RouterGroup {
 
 func (r Routes) Run(addr ...string) error {
 	return r.router.Run(addr...)
+}
+
+func (r Routes) AuthMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		token := c.GetHeader("Authorization")
+		refToken := os.Getenv("TOKEN")
+
+		err := tv.NewTokenValidator(refToken).ValidateToken(token, refToken)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"message": "Unauthorized",
+			})
+			c.Abort()
+			return
+		}
+
+		c.Next()
+	}
+
 }
