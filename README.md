@@ -4,10 +4,12 @@
 
 | GROUP | DESCRIPTION | NAMING  |
 | ----- | ----------- | ------  |
-| Bases |   Go Bases  | aula-0X |
-| WEB   |   Go WEB    | aula0X-goweb  |
+| Bases |   Go Bases  | aula-bases-0X |
+| WEB   |   Go WEB    | aula-goweb-0X  |
 
 
 ##  Additional info
 
-If needed, I'll write it here
+Update 19 April 2024:
+
+Replaced naming conventions

@@ -31,6 +31,16 @@ func NewTransactionController() ITransactionsController {
 	}
 }
 
+/*
+Get all transactions godoc
+@Summary Get all transactions
+@Description Get all transactions
+@Tags transactions
+@Accept json
+@Produce json
+@Success 200 {array} Transaction
+@Router /transactions [get]
+*/
 func (c *Controller) GetAllTransactions(gc *gin.Context) {
 	response := web.NewResponse()
 	response.JSON(http.StatusOK, c.transactionsService.GetAllTransactions())

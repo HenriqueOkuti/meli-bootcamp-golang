@@ -19,16 +19,6 @@ func NewHandlers() *Handlers {
 	}
 }
 
-/*
-Get all transactions godoc
-@Summary Get all transactions
-@Description Get all transactions
-@Tags transactions
-@Accept json
-@Produce json
-@Success 200 {array} Transaction
-@Router /transactions [get]
-*/
 func (h *Handlers) GetAllTransactions() gin.HandlerFunc {
 	return h.transactionController.GetAllTransactions
 }
