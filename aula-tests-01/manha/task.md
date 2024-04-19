@@ -29,8 +29,8 @@ R: Testes de integração focam em testar a comunicação entre as camadas, pega
 
 R:
 
-- Testes Rápidos: Número de testes pode ser imenso, mas cada teste deve ser rápido
-- Testes sem dependência: Não deve haver ordem especifica para realizar os testes
-- Testes "aleatórios": Ao repetir os testes, devemos esperar sempre os mesmos resultados
-- Testes auto validados: Não deve ser necessário verificar/validar qualquer resultado manualmente
-- Testes Completos: Não cobrir 100% da coverage apenas, mas cobrir também os edge-cases e possiveis erros
+- Funcionalidade
+- Eficiência
+- Confiança
+- Segurança
+- Manutenibilidade
