@@ -18,3 +18,7 @@ func NewRepository(story s.IStore) *Repository {
 func (r *Repository) GetAll() ([]d.Product, error) {
 	return r.store.Read()
 }
+
+func (r *Repository) UpdateProduct(id int, product d.Product) (d.Product, error) {
+	return r.store.Update(id, product)
+}
