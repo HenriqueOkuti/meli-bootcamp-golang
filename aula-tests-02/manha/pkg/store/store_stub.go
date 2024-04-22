@@ -19,3 +19,7 @@ func (r *StoreStub) Read() ([]d.Product, error) {
 		},
 	}, nil
 }
+
+func (r *StoreStub) Update(id int, product d.Product) (d.Product, error) {
+	return d.Product{}, nil
+}

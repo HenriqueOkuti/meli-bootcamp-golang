@@ -6,4 +6,5 @@ import (
 
 type IStore interface {
 	Read() ([]d.Product, error)
+	Update(id int, product d.Product) (d.Product, error)
 }
