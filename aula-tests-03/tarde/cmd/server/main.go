@@ -1,8 +1,8 @@
 package main
 
 import (
+	"gotests03tarde/cmd/server/routes"
 	"gotests03tarde/pkg/store"
-	"gotests03tarde/routes"
 	"os"
 
 	"github.com/gin-gonic/gin"

@@ -1,7 +1,9 @@
 package routes
 
 import (
-	products_handler "gotests03tarde/handler/products"
+	fibonacci_handler "gotests03tarde/cmd/server/handler/fibonacci"
+	products_handler "gotests03tarde/cmd/server/handler/products"
+	"gotests03tarde/internal/fibonacci"
 	"gotests03tarde/internal/products"
 	"gotests03tarde/pkg/store"
 
@@ -27,6 +29,7 @@ func (r *router) MapRoutes() {
 	r.setGroup()
 	r.buildPingRoute()
 	r.buildProductsRoute()
+	r.buildFibonacciRoute()
 }
 
 func (r *router) setGroup() {
@@ -52,6 +55,14 @@ func (r *router) buildProductsRoute() {
 	r.rg.POST("/products", handler.Create())
 	r.rg.PATCH("/products/:id", handler.Update())
 	r.rg.DELETE("/products/:id", handler.Delete())
+}
+
+func (r *router) buildFibonacciRoute() {
+	service := fibonacci.NewService()
+	handler := fibonacci_handler.NewHandler(service)
+
+	r.rg.GET("/fibonacci/:id", handler.Calculate())
+
 }
 
 func (r *router) Run(port string) {

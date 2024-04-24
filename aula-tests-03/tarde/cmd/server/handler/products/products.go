@@ -1,7 +1,7 @@
 package products_handler
 
 import (
-	"gotests03tarde/handler/helpers/extract"
+	"gotests03tarde/cmd/server/handler/helpers/extract"
 	web "gotests03tarde/pkg/web"
 	"net/http"
 
