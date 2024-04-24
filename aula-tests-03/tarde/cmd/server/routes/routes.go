@@ -66,5 +66,8 @@ func (r *router) buildFibonacciRoute() {
 }
 
 func (r *router) Run(port string) {
-	r.engine.Run(port)
+	err := r.engine.Run(port)
+	if err != nil {
+		panic(err)
+	}
 }

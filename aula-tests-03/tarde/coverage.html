@@ -1,0 +1,961 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>fibonacci: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">gotests03tarde/cmd/server/handler/fibonacci/fibonacci.go (100.0%)</option>
+				
+				<option value="file1">gotests03tarde/cmd/server/handler/helpers/extract/extract.go (85.7%)</option>
+				
+				<option value="file2">gotests03tarde/cmd/server/handler/products/products.go (96.7%)</option>
+				
+				<option value="file3">gotests03tarde/cmd/server/main.go (0.0%)</option>
+				
+				<option value="file4">gotests03tarde/cmd/server/routes/routes.go (0.0%)</option>
+				
+				<option value="file5">gotests03tarde/internal/fibonacci/service.go (100.0%)</option>
+				
+				<option value="file6">gotests03tarde/internal/products/repository.go (100.0%)</option>
+				
+				<option value="file7">gotests03tarde/internal/products/service.go (100.0%)</option>
+				
+				<option value="file8">gotests03tarde/pkg/store/store.go (96.0%)</option>
+				
+				<option value="file9">gotests03tarde/pkg/web/web.go (100.0%)</option>
+				
+				<option value="file10">gotests03tarde/pkg/webtest/server.go (100.0%)</option>
+				
+				<option value="file11">gotests03tarde/tests/fibonacci/fibonacci_mock.go (87.5%)</option>
+				
+				<option value="file12">gotests03tarde/tests/products/products_mock.go (40.4%)</option>
+				
+				<option value="file13">gotests03tarde/utils/fib/fib.go (100.0%)</option>
+				
+				<option value="file14">gotests03tarde/utils/time_limit/time_limit.go (100.0%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package handler_fibonacci
+
+import (
+        "context"
+        "gotests03tarde/cmd/server/handler/helpers/extract"
+        web "gotests03tarde/pkg/web"
+        "gotests03tarde/utils/time_limit"
+        "net/http"
+
+        internal "gotests03tarde/internal/fibonacci"
+
+        "github.com/gin-gonic/gin"
+)
+
+type FibonacciHandler struct {
+        service internal.IService
+}
+
+func NewHandler(service internal.IService) *FibonacciHandler <span class="cov8" title="1">{
+        return &amp;FibonacciHandler{
+                service: service,
+        }
+}</span>
+
+func (h *FibonacciHandler) Calculate() gin.HandlerFunc <span class="cov8" title="1">{
+        return func(c *gin.Context) </span><span class="cov8" title="1">{
+                n, err := extract.ExtractIDFromContext(c)
+                if err != nil </span><span class="cov8" title="1">{
+                        web.Error(c, http.StatusBadRequest, err.Error())
+                        return
+                }</span>
+
+                <span class="cov8" title="1">ctx, cancel := context.WithTimeout(c, time_limit.GetTimeLimit())
+                defer cancel()
+
+                resultCh := make(chan interface{})
+                errCh := make(chan error)
+
+                go func() </span><span class="cov8" title="1">{
+                        result, err := h.service.Calculate(n)
+                        if err != nil </span><span class="cov8" title="1">{
+                                errCh &lt;- err
+                        }</span> else<span class="cov8" title="1"> {
+                                resultCh &lt;- result
+                        }</span>
+                }()
+
+                <span class="cov8" title="1">select </span>{
+                case result := &lt;-resultCh:<span class="cov8" title="1">
+                        web.Success(c, http.StatusOK, result)</span>
+
+                case err := &lt;-errCh:<span class="cov8" title="1">
+                        web.Error(c, http.StatusBadRequest, err.Error())</span>
+
+                case &lt;-ctx.Done():<span class="cov8" title="1">
+                        web.Error(c, http.StatusRequestTimeout, "Unable to calculate fibonacci number in able time")</span>
+                }
+        }
+}
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package extract
+
+import (
+        "errors"
+        "strconv"
+
+        "github.com/gin-gonic/gin"
+)
+
+func ExtractIDFromContext(c *gin.Context) (int, error) <span class="cov8" title="1">{
+        id, exists := c.Params.Get("id")
+        if !exists </span><span class="cov0" title="0">{
+                return 0, errors.New("id not found")
+        }</span>
+
+        <span class="cov8" title="1">int_id, err := strconv.Atoi(id)
+        if err != nil </span><span class="cov8" title="1">{
+                return 0, errors.New("id is not a number")
+        }</span>
+
+        <span class="cov8" title="1">return int_id, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package handler_products
+
+import (
+        "errors"
+        "gotests03tarde/cmd/server/handler/helpers/extract"
+        web "gotests03tarde/pkg/web"
+        "net/http"
+
+        domain "gotests03tarde/internal/domain"
+        internal "gotests03tarde/internal/products"
+        dto "gotests03tarde/internal/products/dtos"
+
+        "github.com/gin-gonic/gin"
+)
+
+type ProductsHandler struct {
+        service internal.IService
+}
+
+func NewHandler(service internal.IService) *ProductsHandler <span class="cov8" title="1">{
+        return &amp;ProductsHandler{
+                service: service,
+        }
+}</span>
+
+func (h *ProductsHandler) GetAll() gin.HandlerFunc <span class="cov8" title="1">{
+        return func(c *gin.Context) </span><span class="cov8" title="1">{
+                var products []domain.Product
+
+                products, err := h.service.GetAll()
+                if err != nil </span><span class="cov8" title="1">{
+                        web.Error(c, http.StatusInternalServerError, err.Error())
+                        return
+                }</span>
+
+                <span class="cov8" title="1">if len(products) == 0 </span><span class="cov8" title="1">{
+                        web.Success(c, http.StatusNoContent, []domain.Product{})
+                        return
+                }</span>
+
+                <span class="cov8" title="1">web.Success(c, http.StatusOK, products)</span>
+        }
+}
+
+func (h *ProductsHandler) GetOne() gin.HandlerFunc <span class="cov8" title="1">{
+        return func(c *gin.Context) </span><span class="cov8" title="1">{
+                id, err := extract.ExtractIDFromContext(c)
+                if err != nil </span><span class="cov8" title="1">{
+                        web.Error(c, http.StatusBadRequest, err.Error())
+                        return
+                }</span>
+
+                <span class="cov8" title="1">product, err := h.service.GetOne(id)
+                if err != nil </span><span class="cov8" title="1">{
+                        web.Error(c, http.StatusNotFound, err.Error())
+                        return
+                }</span>
+
+                <span class="cov8" title="1">web.Success(c, http.StatusOK, product)</span>
+        }
+}
+
+func (h *ProductsHandler) Create() gin.HandlerFunc <span class="cov8" title="1">{
+        return func(c *gin.Context) </span><span class="cov8" title="1">{
+                var product dto.CreateProductDTO
+                if err := c.BindJSON(&amp;product); err != nil </span><span class="cov8" title="1">{
+                        web.Error(c, http.StatusBadRequest, errors.New("invalid body").Error())
+                        return
+                }</span>
+
+                <span class="cov8" title="1">new_product := domain.Product{
+                        ID:    product.ID,
+                        Name:  product.Name,
+                        Price: product.Price,
+                }
+
+                new_product, err := h.service.Create(new_product)
+                if err != nil </span><span class="cov8" title="1">{
+                        web.Error(c, http.StatusInternalServerError, err.Error())
+                        return
+                }</span>
+
+                <span class="cov8" title="1">web.Success(c, http.StatusCreated, new_product)</span>
+        }
+}
+
+func (h *ProductsHandler) Update() gin.HandlerFunc <span class="cov8" title="1">{
+        return func(c *gin.Context) </span><span class="cov8" title="1">{
+                id, err := extract.ExtractIDFromContext(c)
+                if err != nil </span><span class="cov0" title="0">{
+                        web.Error(c, http.StatusBadRequest, err.Error())
+                        return
+                }</span>
+
+                <span class="cov8" title="1">var product dto.UpdateProductDTO
+                if err := c.BindJSON(&amp;product); err != nil </span><span class="cov8" title="1">{
+                        web.Error(c, http.StatusBadRequest, errors.New("invalid body").Error())
+                        return
+                }</span>
+
+                <span class="cov8" title="1">new_product := domain.Product{
+                        ID:    id,
+                        Name:  product.Name,
+                        Price: product.Price,
+                }
+
+                new_product, err = h.service.Update(new_product)
+                if err != nil </span><span class="cov8" title="1">{
+                        web.Error(c, http.StatusInternalServerError, err.Error())
+                        return
+                }</span>
+
+                <span class="cov8" title="1">web.Success(c, http.StatusOK, new_product)</span>
+        }
+}
+
+func (h *ProductsHandler) Delete() gin.HandlerFunc <span class="cov8" title="1">{
+        return func(c *gin.Context) </span><span class="cov8" title="1">{
+                id, err := extract.ExtractIDFromContext(c)
+                if err != nil </span><span class="cov8" title="1">{
+                        web.Error(c, http.StatusBadRequest, err.Error())
+                        return
+                }</span>
+
+                <span class="cov8" title="1">deleted, err := h.service.Delete(id)
+                if err != nil </span><span class="cov8" title="1">{
+                        web.Error(c, http.StatusInternalServerError, err.Error())
+                        return
+                }</span>
+
+                <span class="cov8" title="1">if !deleted </span><span class="cov8" title="1">{
+                        web.Error(c, http.StatusNotFound, "product not found")
+                        return
+                }</span>
+
+                <span class="cov8" title="1">web.Success(c, http.StatusNoContent, domain.Product{})</span>
+        }
+}
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">package main
+
+import (
+        "gotests03tarde/cmd/server/routes"
+        "gotests03tarde/pkg/store"
+        "os"
+
+        "github.com/gin-gonic/gin"
+        "github.com/joho/godotenv"
+)
+
+func main() <span class="cov0" title="0">{
+        err := godotenv.Load()
+        if err != nil </span><span class="cov0" title="0">{
+                panic(err)</span>
+        }
+
+        <span class="cov0" title="0">eng := gin.Default()
+        db := store.NewMockDB(nil)
+
+        router := routes.NewRouter(eng, db)
+        router.MapRoutes()
+
+        api_route := os.Getenv("HOST") + ":" + os.Getenv("PORT")
+
+        router.Run(api_route)</span>
+}
+</pre>
+		
+		<pre class="file" id="file4" style="display: none">package routes
+
+import (
+        fh "gotests03tarde/cmd/server/handler/fibonacci"
+        ph "gotests03tarde/cmd/server/handler/products"
+        "gotests03tarde/internal/fibonacci"
+        "gotests03tarde/internal/products"
+        "gotests03tarde/pkg/store"
+
+        gin "github.com/gin-gonic/gin"
+)
+
+type Router interface {
+        MapRoutes()
+        Run(port string)
+}
+
+type router struct {
+        db     *store.MockDB
+        rg     *gin.RouterGroup
+        engine *gin.Engine
+}
+
+func NewRouter(engine *gin.Engine, database *store.MockDB) Router <span class="cov0" title="0">{
+        return &amp;router{engine: engine, db: database}
+}</span>
+
+func (r *router) MapRoutes() <span class="cov0" title="0">{
+        r.setGroup()
+        r.buildPingRoute()
+        r.buildProductsRoute()
+        r.buildFibonacciRoute()
+}</span>
+
+func (r *router) setGroup() <span class="cov0" title="0">{
+        r.rg = r.engine.Group("/")
+}</span>
+
+func (r *router) buildPingRoute() <span class="cov0" title="0">{
+        r.rg.GET("/ping", func(c *gin.Context) </span><span class="cov0" title="0">{
+                c.JSON(200, gin.H{
+                        "message": "pong",
+                })
+        }</span>)
+}
+
+func (r *router) buildProductsRoute() <span class="cov0" title="0">{
+        database := r.db
+        repository := products.NewRepository(database)
+        service := products.NewService(repository)
+        handler := ph.NewHandler(service)
+
+        r.rg.GET("/products", handler.GetAll())
+        r.rg.GET("/products/:id", handler.GetOne())
+        r.rg.POST("/products", handler.Create())
+        r.rg.PATCH("/products/:id", handler.Update())
+        r.rg.DELETE("/products/:id", handler.Delete())
+}</span>
+
+func (r *router) buildFibonacciRoute() <span class="cov0" title="0">{
+        service := fibonacci.NewService()
+        handler := fh.NewHandler(service)
+
+        r.rg.GET("/fibonacci/:id", handler.Calculate())
+
+}</span>
+
+func (r *router) Run(port string) <span class="cov0" title="0">{
+        err := r.engine.Run(port)
+        if err != nil </span><span class="cov0" title="0">{
+                panic(err)</span>
+        }
+}
+</pre>
+		
+		<pre class="file" id="file5" style="display: none">package fibonacci
+
+import (
+        f "gotests03tarde/utils/fib"
+)
+
+type IService interface {
+        Calculate(int) (int, error)
+}
+
+type Service struct {
+}
+
+func NewService() *Service <span class="cov8" title="1">{
+        return &amp;Service{}
+}</span>
+
+func (s *Service) Calculate(n int) (int, error) <span class="cov8" title="1">{
+        if n &lt; 0 </span><span class="cov8" title="1">{
+                return 0, ErrUnsupportedValue
+        }</span>
+
+        <span class="cov8" title="1">return f.Fib(n), nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file6" style="display: none">package products
+
+import (
+        d "gotests03tarde/internal/domain"
+)
+
+type IRepository interface {
+        ReadAll() ([]d.Product, error)
+        ReadOne(int) (d.Product, error)
+        Create(d.Product) (d.Product, error)
+        Update(d.Product) (d.Product, error)
+        Delete(int) (bool, error)
+}
+
+type Repository struct {
+        db IRepository
+}
+
+func NewRepository(db IRepository) *Repository <span class="cov8" title="1">{
+        return &amp;Repository{
+                db: db,
+        }
+}</span>
+
+func (r *Repository) ReadAll() ([]d.Product, error) <span class="cov8" title="1">{
+        return r.db.ReadAll()
+}</span>
+
+func (r *Repository) ReadOne(id int) (d.Product, error) <span class="cov8" title="1">{
+        return r.db.ReadOne(id)
+}</span>
+
+func (r *Repository) Create(p d.Product) (d.Product, error) <span class="cov8" title="1">{
+        return r.db.Create(p)
+}</span>
+
+func (r *Repository) Update(p d.Product) (d.Product, error) <span class="cov8" title="1">{
+        return r.db.Update(p)
+}</span>
+
+func (r *Repository) Delete(id int) (bool, error) <span class="cov8" title="1">{
+        return r.db.Delete(id)
+}</span>
+</pre>
+		
+		<pre class="file" id="file7" style="display: none">package products
+
+import (
+        d "gotests03tarde/internal/domain"
+)
+
+type IService interface {
+        GetAll() ([]d.Product, error)
+        GetOne(int) (d.Product, error)
+        Create(d.Product) (d.Product, error)
+        Update(d.Product) (d.Product, error)
+        Delete(int) (bool, error)
+}
+
+type Service struct {
+        repo IRepository
+}
+
+func NewService(repo IRepository) *Service <span class="cov8" title="1">{
+        return &amp;Service{
+                repo: repo,
+        }
+}</span>
+
+func (s *Service) GetAll() ([]d.Product, error) <span class="cov8" title="1">{
+        return s.repo.ReadAll()
+}</span>
+
+func (s *Service) GetOne(id int) (d.Product, error) <span class="cov8" title="1">{
+        return s.repo.ReadOne(id)
+}</span>
+
+func (s *Service) Create(p d.Product) (d.Product, error) <span class="cov8" title="1">{
+        return s.repo.Create(p)
+}</span>
+
+func (s *Service) Update(p d.Product) (d.Product, error) <span class="cov8" title="1">{
+        old_p, err := s.repo.ReadOne(p.ID)
+        if err != nil </span><span class="cov8" title="1">{
+                return d.Product{}, err
+        }</span>
+
+        <span class="cov8" title="1">if p.Name == "" &amp;&amp; p.Price == 0 </span><span class="cov8" title="1">{
+                return old_p, nil
+        }</span>
+
+        <span class="cov8" title="1">if p.Name == "" </span><span class="cov8" title="1">{
+                p.Name = old_p.Name
+        }</span>
+        <span class="cov8" title="1">if p.Price == 0 </span><span class="cov8" title="1">{
+                p.Price = old_p.Price
+        }</span>
+
+        <span class="cov8" title="1">return s.repo.Update(p)</span>
+}
+
+func (s *Service) Delete(id int) (bool, error) <span class="cov8" title="1">{
+        return s.repo.Delete(id)
+}</span>
+</pre>
+		
+		<pre class="file" id="file8" style="display: none">package store
+
+import (
+        "errors"
+        d "gotests03tarde/internal/domain"
+)
+
+type MockDB struct {
+        Products         []d.Product
+        ReadAllWasCalled bool
+        ReadOneWasCalled bool
+        CreateWasCalled  bool
+        UpdateWasCalled  bool
+        DeleteWasCalled  bool
+}
+
+func NewMockDB(seed []d.Product) *MockDB <span class="cov8" title="1">{
+        if seed == nil </span><span class="cov8" title="1">{
+                seed = []d.Product{}
+        }</span>
+
+        <span class="cov8" title="1">return &amp;MockDB{
+                Products:         seed,
+                ReadAllWasCalled: false,
+                ReadOneWasCalled: false,
+                CreateWasCalled:  false,
+                UpdateWasCalled:  false,
+                DeleteWasCalled:  false,
+        }</span>
+}
+
+func (m *MockDB) ReadAll() ([]d.Product, error) <span class="cov8" title="1">{
+        m.ReadAllWasCalled = true
+        return m.Products, nil
+}</span>
+
+func (m *MockDB) ReadOne(id int) (d.Product, error) <span class="cov8" title="1">{
+        m.ReadOneWasCalled = true
+        for _, product := range m.Products </span><span class="cov8" title="1">{
+                if product.ID == id </span><span class="cov8" title="1">{
+                        return product, nil
+                }</span>
+        }
+        <span class="cov8" title="1">return d.Product{}, errors.New("product not found")</span>
+}
+
+func (m *MockDB) Create(p d.Product) (d.Product, error) <span class="cov8" title="1">{
+        m.CreateWasCalled = true
+        m.Products = append(m.Products, p)
+        return p, nil
+}</span>
+
+func (m *MockDB) Update(p d.Product) (d.Product, error) <span class="cov8" title="1">{
+        m.UpdateWasCalled = true
+        for i, entity := range m.Products </span><span class="cov8" title="1">{
+                if entity.ID == p.ID </span><span class="cov8" title="1">{
+                        m.Products[i] = p
+                        return p, nil
+                }</span>
+        }
+        <span class="cov0" title="0">return d.Product{}, errors.New("entity not found")</span>
+}
+
+func (m *MockDB) Delete(id int) (bool, error) <span class="cov8" title="1">{
+        m.DeleteWasCalled = true
+        for i, product := range m.Products </span><span class="cov8" title="1">{
+                if product.ID == id </span><span class="cov8" title="1">{
+                        m.Products = append(m.Products[:i], m.Products[i+1:]...)
+                        return true, nil
+                }</span>
+        }
+        <span class="cov8" title="1">return false, errors.New("product not found")</span>
+}
+</pre>
+		
+		<pre class="file" id="file9" style="display: none">package web
+
+import (
+        "fmt"
+        "net/http"
+        "strings"
+
+        "github.com/gin-gonic/gin"
+)
+
+type Response[T any] struct {
+        Data T `json:"data,omitempty"`
+}
+
+type ErrorResponse struct {
+        Status  int    `json:"-"`
+        Code    string `json:"code"`
+        Message string `json:"message"`
+}
+
+func NewResponse(c *gin.Context, status int, data interface{}) <span class="cov8" title="1">{
+        c.JSON(status, data)
+}</span>
+
+func Success[T any](c *gin.Context, status int, data T) <span class="cov8" title="1">{
+        NewResponse(c, status, Response[T]{Data: data})
+}</span>
+
+func Error(c *gin.Context, status int, format string, args ...interface{}) <span class="cov8" title="1">{
+        err := ErrorResponse{
+                Code:    strings.ReplaceAll(strings.ToLower(http.StatusText(status)), " ", "_"),
+                Message: fmt.Sprintf(format, args...),
+                Status:  status,
+        }
+
+        NewResponse(c, status, err)
+}</span>
+</pre>
+		
+		<pre class="file" id="file10" style="display: none">package webtest
+
+import (
+        "bytes"
+        "net/http"
+        "net/http/httptest"
+
+        "github.com/gin-gonic/gin"
+)
+
+func CreateServer() *gin.Engine <span class="cov8" title="1">{
+        r := gin.Default()
+        gin.SetMode(gin.TestMode)
+        return r
+}</span>
+
+func NewRequest(method, url, body string) (
+        *http.Request,
+        *httptest.ResponseRecorder,
+) <span class="cov8" title="1">{
+        req := httptest.NewRequest(method, url, bytes.NewBuffer([]byte(body)))
+
+        return req, httptest.NewRecorder()
+}</span>
+</pre>
+		
+		<pre class="file" id="file11" style="display: none">package mocks_fibonacci
+
+import (
+        "gotests03tarde/internal/fibonacci"
+        "gotests03tarde/utils/fib"
+        "time"
+
+        "github.com/stretchr/testify/mock"
+)
+
+type FibonacciServiceMock struct {
+        mock.Mock
+}
+
+func NewFibonacciServiceMock() fibonacci.IService <span class="cov0" title="0">{
+        return &amp;FibonacciServiceMock{}
+}</span>
+
+func (m *FibonacciServiceMock) Calculate(n int) (int, error) <span class="cov8" title="1">{
+        if n &lt; 0 </span><span class="cov8" title="1">{
+                return n, fibonacci.ErrUnsupportedValue
+        }</span>
+
+        <span class="cov8" title="1">if n &gt;= 50 </span><span class="cov8" title="1">{
+                delay := 100 * time.Minute
+                time.Sleep(delay)
+                return n, nil
+        }</span>
+
+        <span class="cov8" title="1">return fib.Fib(n), nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file12" style="display: none">package mocks_products
+
+import (
+        d "gotests03tarde/internal/domain"
+        "gotests03tarde/internal/products"
+
+        "github.com/stretchr/testify/mock"
+)
+
+type ProductsServiceMock struct {
+        mock.Mock
+}
+
+func NewProductsServiceMock() products.IService <span class="cov0" title="0">{
+        return &amp;ProductsServiceMock{}
+}</span>
+
+func (m *ProductsServiceMock) GetAll() ([]d.Product, error) <span class="cov8" title="1">{
+        args := m.Called()
+        arg0, ok := args.Get(0).([]d.Product)
+        if !ok </span><span class="cov8" title="1">{
+                return []d.Product{}, args.Error(1)
+        }</span>
+
+        <span class="cov8" title="1">return arg0, args.Error(1)</span>
+}
+
+func (m *ProductsServiceMock) GetOne(id int) (d.Product, error) <span class="cov8" title="1">{
+        args := m.Called(id)
+        arg0, ok := args.Get(0).(d.Product)
+        if !ok </span><span class="cov0" title="0">{
+                return d.Product{}, args.Error(1)
+        }</span>
+
+        <span class="cov8" title="1">return arg0, args.Error(1)</span>
+}
+
+func (m *ProductsServiceMock) Create(p d.Product) (d.Product, error) <span class="cov8" title="1">{
+        args := m.Called(p)
+        arg0, ok := args.Get(0).(d.Product)
+        if !ok </span><span class="cov0" title="0">{
+                return d.Product{}, args.Error(1)
+        }</span>
+
+        <span class="cov8" title="1">return arg0, args.Error(1)</span>
+}
+
+func (m *ProductsServiceMock) Update(p d.Product) (d.Product, error) <span class="cov8" title="1">{
+        args := m.Called(p)
+        arg0, ok := args.Get(0).(d.Product)
+        if !ok </span><span class="cov0" title="0">{
+                return d.Product{}, args.Error(1)
+        }</span>
+
+        <span class="cov8" title="1">return arg0, args.Error(1)</span>
+}
+
+func (m *ProductsServiceMock) Delete(id int) (bool, error) <span class="cov8" title="1">{
+        args := m.Called(id)
+        arg0, ok := args.Get(0).(bool)
+        if !ok </span><span class="cov0" title="0">{
+                return false, args.Error(1)
+        }</span>
+
+        <span class="cov8" title="1">return arg0, args.Error(1)</span>
+}
+
+type ProductsRepositoryMock struct {
+        mock.Mock
+}
+
+func NewProductsRepositoryMock() products.IRepository <span class="cov0" title="0">{
+        return &amp;ProductsRepositoryMock{}
+}</span>
+
+func (m *ProductsRepositoryMock) ReadAll() ([]d.Product, error) <span class="cov0" title="0">{
+        args := m.Called()
+        arg0, ok := args.Get(0).([]d.Product)
+        if !ok </span><span class="cov0" title="0">{
+                return []d.Product{}, args.Error(1)
+        }</span>
+
+        <span class="cov0" title="0">return arg0, args.Error(1)</span>
+}
+
+func (m *ProductsRepositoryMock) ReadOne(id int) (d.Product, error) <span class="cov0" title="0">{
+        args := m.Called(id)
+        arg0, ok := args.Get(0).(d.Product)
+        if !ok </span><span class="cov0" title="0">{
+                return d.Product{}, args.Error(1)
+        }</span>
+
+        <span class="cov0" title="0">return arg0, args.Error(1)</span>
+}
+
+func (m *ProductsRepositoryMock) Create(p d.Product) (d.Product, error) <span class="cov0" title="0">{
+        args := m.Called(p)
+        arg0, ok := args.Get(0).(d.Product)
+        if !ok </span><span class="cov0" title="0">{
+                return d.Product{}, args.Error(1)
+        }</span>
+
+        <span class="cov0" title="0">return arg0, args.Error(1)</span>
+}
+
+func (m *ProductsRepositoryMock) Update(p d.Product) (d.Product, error) <span class="cov0" title="0">{
+        args := m.Called(p)
+        arg0, ok := args.Get(0).(d.Product)
+        if !ok </span><span class="cov0" title="0">{
+                return d.Product{}, args.Error(1)
+        }</span>
+
+        <span class="cov0" title="0">return arg0, args.Error(1)</span>
+}
+
+func (m *ProductsRepositoryMock) Delete(id int) (bool, error) <span class="cov0" title="0">{
+        args := m.Called(id)
+        arg0, ok := args.Get(0).(bool)
+        if !ok </span><span class="cov0" title="0">{
+                return false, args.Error(1)
+        }</span>
+
+        <span class="cov0" title="0">return arg0, args.Error(1)</span>
+}
+</pre>
+		
+		<pre class="file" id="file13" style="display: none">package fib
+
+func Fib(n int) int <span class="cov8" title="1">{
+        if n &lt;= 0 </span><span class="cov8" title="1">{
+                return 0
+        }</span>
+
+        <span class="cov8" title="1">if n == 1 </span><span class="cov8" title="1">{
+                return n
+        }</span>
+
+        <span class="cov8" title="1">return Fib(n-1) + Fib(n-2)</span>
+}
+
+// Just for reference:
+
+// func Iteration1Fib(n int) int {
+//         return 0
+// }
+
+// func Iteration2Fib(n int) int {
+//         if n == 0 {
+//                 return 0
+//         }
+
+//         return 1
+// }
+
+// func Iteration3Fib(n int) int {
+//         if n == 0 {
+//                 return 0
+//         }
+
+//         if n == 1 {
+//                 return 1
+//         }
+
+//         return Fib(n-1) + Fib(n-2)
+// }
+
+// func Iteration4Fib(n int) int {
+//         if n &lt;= 0 {
+//                 return 0
+//         }
+
+//         if n == 1 {
+//                 return n
+//         }
+
+//         return Fib(n-1) + Fib(n-2)
+// }
+</pre>
+		
+		<pre class="file" id="file14" style="display: none">package time_limit
+
+import (
+        "os"
+        "time"
+)
+
+func GetTimeLimit() time.Duration <span class="cov8" title="1">{
+        var time_limit time.Duration
+
+        time_limit, err := time.ParseDuration(os.Getenv("TIMEOUT_FIBONACCI"))
+        if err != nil </span><span class="cov8" title="1">{
+                time_limit = 10 * time.Second
+        }</span>
+
+        <span class="cov8" title="1">return time_limit</span>
+}
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>
