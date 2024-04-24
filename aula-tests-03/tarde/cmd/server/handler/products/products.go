@@ -1,6 +1,7 @@
 package handler_products
 
 import (
+	"errors"
 	"gotests03tarde/cmd/server/handler/helpers/extract"
 	web "gotests03tarde/pkg/web"
 	"net/http"
@@ -63,7 +64,7 @@ func (h *ProductsHandler) Create() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var product dto.CreateProductDTO
 		if err := c.BindJSON(&product); err != nil {
-			web.Error(c, http.StatusBadRequest, err.Error())
+			web.Error(c, http.StatusBadRequest, errors.New("invalid body").Error())
 			return
 		}
 
@@ -93,7 +94,7 @@ func (h *ProductsHandler) Update() gin.HandlerFunc {
 
 		var product dto.UpdateProductDTO
 		if err := c.BindJSON(&product); err != nil {
-			web.Error(c, http.StatusBadRequest, err.Error())
+			web.Error(c, http.StatusBadRequest, errors.New("invalid body").Error())
 			return
 		}
 
