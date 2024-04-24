@@ -1,4 +1,4 @@
-package fibonacci_handler
+package handler_fibonacci
 
 import (
 	"context"

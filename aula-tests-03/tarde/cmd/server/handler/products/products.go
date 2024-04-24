@@ -1,4 +1,4 @@
-package products_handler
+package handler_products
 
 import (
 	"gotests03tarde/cmd/server/handler/helpers/extract"

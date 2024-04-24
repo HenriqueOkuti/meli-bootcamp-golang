@@ -1,8 +1,8 @@
 package routes
 
 import (
-	fibonacci_handler "gotests03tarde/cmd/server/handler/fibonacci"
-	products_handler "gotests03tarde/cmd/server/handler/products"
+	fh "gotests03tarde/cmd/server/handler/fibonacci"
+	ph "gotests03tarde/cmd/server/handler/products"
 	"gotests03tarde/internal/fibonacci"
 	"gotests03tarde/internal/products"
 	"gotests03tarde/pkg/store"
@@ -48,7 +48,7 @@ func (r *router) buildProductsRoute() {
 	database := r.db
 	repository := products.NewRepository(database)
 	service := products.NewService(repository)
-	handler := products_handler.NewHandler(service)
+	handler := ph.NewHandler(service)
 
 	r.rg.GET("/products", handler.GetAll())
 	r.rg.GET("/products/:id", handler.GetOne())
@@ -59,7 +59,7 @@ func (r *router) buildProductsRoute() {
 
 func (r *router) buildFibonacciRoute() {
 	service := fibonacci.NewService()
-	handler := fibonacci_handler.NewHandler(service)
+	handler := fh.NewHandler(service)
 
 	r.rg.GET("/fibonacci/:id", handler.Calculate())
 

@@ -1,1 +1,1 @@
-package products_handler
+package handler_products_test

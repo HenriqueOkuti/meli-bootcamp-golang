@@ -1,11 +1,11 @@
-package fibonacci_handler_test
+package handler_fibonacci_test
 
 import (
 	"encoding/json"
-	fibonacci_handler "gotests03tarde/cmd/server/handler/fibonacci"
+	hf "gotests03tarde/cmd/server/handler/fibonacci"
 	"gotests03tarde/pkg/web"
 	"gotests03tarde/pkg/webtest"
-	mocks_fibonacci "gotests03tarde/tests/fibonacci"
+	mf "gotests03tarde/tests/fibonacci"
 	"net/http"
 	"os"
 	"testing"
@@ -14,15 +14,15 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func beforeEach(t *testing.T) (*gin.Engine, *fibonacci_handler.FibonacciHandler) {
+func beforeEach(t *testing.T) (*gin.Engine, *hf.FibonacciHandler) {
 	t.Helper()
 	t.Parallel()
 
 	os.Setenv("TIMEOUT_FIBONACCI", "1ms")
 
 	server := webtest.CreateServer()
-	service := new(mocks_fibonacci.FibonacciServiceMock)
-	handler := fibonacci_handler.NewHandler(service)
+	service := new(mf.FibonacciServiceMock)
+	handler := hf.NewHandler(service)
 	server.GET("/fibonacci/:id", handler.Calculate())
 
 	return server, handler
