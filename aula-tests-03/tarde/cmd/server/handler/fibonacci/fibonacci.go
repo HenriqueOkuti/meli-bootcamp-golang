@@ -5,6 +5,7 @@ import (
 	"gotests03tarde/cmd/server/handler/helpers/extract"
 	web "gotests03tarde/pkg/web"
 	"net/http"
+	"os"
 	"time"
 
 	internal "gotests03tarde/internal/fibonacci"
@@ -23,6 +24,13 @@ func NewHandler(service internal.IService) *FibonacciHandler {
 }
 
 func (h *FibonacciHandler) Calculate() gin.HandlerFunc {
+	var time_limit time.Duration
+
+	time_limit, err := time.ParseDuration(os.Getenv("TIMEOUT_FIBONACCI"))
+	if err != nil {
+		time_limit = 1 * time.Second
+	}
+
 	return func(c *gin.Context) {
 		n, err := extract.ExtractIDFromContext(c)
 		if err != nil {
@@ -30,7 +38,7 @@ func (h *FibonacciHandler) Calculate() gin.HandlerFunc {
 			return
 		}
 
-		ctx, cancel := context.WithTimeout(c, time.Minute)
+		ctx, cancel := context.WithTimeout(c, time_limit)
 		defer cancel()
 
 		resultCh := make(chan interface{})

@@ -40,6 +40,10 @@ func (s *Service) Update(p d.Product) (d.Product, error) {
 		return d.Product{}, err
 	}
 
+	if p.Name == "" && p.Price == 0 {
+		return old_p, nil
+	}
+
 	if p.Name == "" {
 		p.Name = old_p.Name
 	}
