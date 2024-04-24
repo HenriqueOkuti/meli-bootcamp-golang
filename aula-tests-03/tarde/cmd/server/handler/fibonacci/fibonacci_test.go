@@ -7,6 +7,7 @@ import (
 	"gotests03tarde/pkg/webtest"
 	mocks_fibonacci "gotests03tarde/tests/fibonacci"
 	"net/http"
+	"os"
 	"testing"
 
 	"github.com/gin-gonic/gin"
@@ -15,6 +16,10 @@ import (
 
 func beforeEach(t *testing.T) (*gin.Engine, *fibonacci_handler.FibonacciHandler) {
 	t.Helper()
+	t.Parallel()
+
+	os.Setenv("TIMEOUT_FIBONACCI", "1ms")
+
 	server := webtest.CreateServer()
 	service := new(mocks_fibonacci.FibonacciServiceMock)
 	handler := fibonacci_handler.NewHandler(service)
