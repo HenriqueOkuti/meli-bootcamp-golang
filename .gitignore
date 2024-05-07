@@ -1,3 +1,4 @@
 .env
 ignore.*
 log.txt
+collection.json
